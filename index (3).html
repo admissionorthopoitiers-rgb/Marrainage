@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Indices Marrainage</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: #fdf6f0;
+      color: #2c2c2a;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 20px;
+      border: 1.5px solid #f0ddd2;
+      padding: 2.5rem 2rem;
+      max-width: 440px;
+      width: 100%;
+      text-align: center;
+    }
+
+    .logo {
+      font-size: 2.2rem;
+      margin-bottom: 0.4rem;
+    }
+
+    h1 {
+      font-size: 1.35rem;
+      font-weight: 600;
+      color: #b85c3a;
+      margin-bottom: 0.3rem;
+      letter-spacing: -0.01em;
+    }
+
+    .subtitle {
+      font-size: 0.88rem;
+      color: #888780;
+      margin-bottom: 2rem;
+    }
+
+    .divider {
+      height: 1px;
+      background: #f0ddd2;
+      margin: 0 auto 2rem;
+    }
+
+    label {
+      display: block;
+      font-size: 0.82rem;
+      font-weight: 500;
+      color: #5f5e5a;
+      text-align: left;
+      margin-bottom: 0.45rem;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border: 1.5px solid #e8d8cc;
+      border-radius: 10px;
+      font-size: 1rem;
+      letter-spacing: 0.08em;
+      text-align: center;
+      text-transform: uppercase;
+      font-family: 'Courier New', monospace;
+      font-weight: 600;
+      color: #2c2c2a;
+      background: #fdf6f0;
+      transition: border-color 0.15s;
+      outline: none;
+    }
+
+    input[type="text"]:focus {
+      border-color: #c9703f;
+      background: #fff;
+    }
+
+    input[type="text"]::placeholder {
+      color: #c4b5aa;
+      text-transform: none;
+      letter-spacing: 0;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      font-weight: 400;
+    }
+
+    button {
+      margin-top: 1rem;
+      width: 100%;
+      padding: 0.8rem;
+      background: #c9703f;
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s;
+    }
+
+    button:hover { background: #b85c3a; }
+    button:active { transform: scale(0.98); }
+
+    .error {
+      margin-top: 0.9rem;
+      padding: 0.65rem 1rem;
+      background: #fcebeb;
+      border: 1px solid #f7c1c1;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      color: #a32d2d;
+      display: none;
+    }
+
+    .result-card {
+      display: none;
+      text-align: left;
+      margin-top: 1.5rem;
+    }
+
+    .result-header {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #888780;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.5rem;
+    }
+
+    .indice-block {
+      background: #fdf6f0;
+      border: 1.5px solid #f0ddd2;
+      border-radius: 12px;
+      padding: 1rem 1.1rem;
+      margin-bottom: 1rem;
+    }
+
+    .indice-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 0.4rem;
+    }
+
+    .indice-label.marraine { color: #9b5de5; }
+    .indice-label.filleule { color: #c9703f; }
+
+    .indice-icon {
+      font-size: 1.1rem;
+      margin-right: 0.3rem;
+    }
+
+    .indice-text {
+      font-size: 0.95rem;
+      color: #2c2c2a;
+      line-height: 1.5;
+    }
+
+    .indice-text.locked {
+      color: #b4b2a9;
+      font-style: italic;
+      font-size: 0.88rem;
+    }
+
+    .jour-badge {
+      display: inline-block;
+      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 0.2rem 0.6rem;
+      border-radius: 20px;
+      margin-bottom: 0.8rem;
+    }
+
+    .jour-badge.marraine {
+      background: #eeedfe;
+      color: #534ab7;
+    }
+
+    .jour-badge.filleule {
+      background: #faece7;
+      color: #993c1d;
+    }
+
+    .day-nav {
+      display: flex;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+      margin-bottom: 1.2rem;
+      justify-content: center;
+    }
+
+    .day-btn {
+      width: auto;
+      margin: 0;
+      padding: 0.35rem 0.75rem;
+      font-size: 0.78rem;
+      border-radius: 20px;
+      background: #f0ddd2;
+      color: #5f5e5a;
+      font-weight: 500;
+      flex: none;
+    }
+
+    .day-btn:hover { background: #e8cfc3; }
+    .day-btn.active { background: #c9703f; color: #fff; }
+    .day-btn.locked { background: #f1efe8; color: #b4b2a9; cursor: default; }
+    .day-btn.locked:hover { background: #f1efe8; }
+
+    .prenom-name {
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: #2c2c2a;
+      margin-bottom: 1.2rem;
+    }
+
+    .back-btn {
+      background: transparent;
+      color: #888780;
+      border: 1.5px solid #e8d8cc;
+      font-size: 0.82rem;
+      font-weight: 500;
+      margin-top: 0;
+      width: auto;
+      padding: 0.45rem 1rem;
+      border-radius: 8px;
+    }
+
+    .back-btn:hover { background: #fdf6f0; color: #5f5e5a; }
+
+    .loading {
+      color: #888780;
+      font-size: 0.88rem;
+      margin-top: 0.9rem;
+      display: none;
+    }
+
+    footer {
+      margin-top: 2rem;
+      font-size: 0.75rem;
+      color: #b4b2a9;
+    }
+  </style>
+</head>
+<body>
+
+<div class="card" id="login-card">
+  
+  <h1>Indices marrainage</h1>
+  <p class="subtitle">Marrainage orthophonie — 2026/2027</p>
+  <div class="divider"></div>
+  <label for="code-input">Ton code secret</label>
+  <input type="text" id="code-input" maxlength="16" placeholder="ex : MARRAINE-1234" autocomplete="off" />
+  <button onclick="validerCode()">Voir mon indice du jour</button>
+  <p class="error" id="error-msg">Code introuvable. Vérifie ton message de départ ✉️</p>
+  <p class="loading" id="loading-msg">Chargement…</p>
+</div>
+
+<div class="card" id="result-card" style="display:none;">
+  
+  <h1>Indices marrainage</h1>
+  <p class="subtitle">Marrainage orthophonie — 2026/2027</p>
+  <div class="divider"></div>
+
+  <p class="prenom-name" id="prenom-display"></p>
+
+  <div class="day-nav" id="day-nav"></div>
+
+  <div class="result-block" id="indice-container"></div>
+
+  <button class="back-btn" onclick="retour()">← Changer de code</button>
+</div>
+
+<footer></footer>
+
+<script>
+  const SHEET_ID = "1qFF13uw4uHtGHg95UvZwBcgKbe_uapieMaF2TsGzczs";
+  const SHEET_NAME = "Participants";
+  const NB_JOURS = 7;
+  const DATE_DEBUT = new Date("2025-09-01");
+
+  let donneesParticipant = null;
+
+  function getJourActuel() {
+    const aujourd_hui = new Date();
+    const diff = Math.floor((aujourd_hui - DATE_DEBUT) / (1000 * 60 * 60 * 24));
+    return Math.min(Math.max(diff + 1, 1), NB_JOURS);
+  }
+
+  async function fetchSheet() {
+    const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SHEET_NAME)}`;
+    const resp = await fetch(url);
+    const text = await resp.text();
+    const json = JSON.parse(text.substring(47, text.length - 2));
+    const rows = json.table.rows;
+    // Utilise la première ligne comme en-têtes
+    const headers = rows[0].c.map(cell => cell ? cell.v : "");
+    return rows.slice(1).map(row => {
+      const obj = {};
+      row.c.forEach((cell, i) => {
+        obj[headers[i]] = cell ? cell.v : "";
+      });
+      return obj;
+    });
+  }
+
+  async function validerCode() {
+    const code = document.getElementById("code-input").value.trim().toUpperCase();
+    const errEl = document.getElementById("error-msg");
+    const loadEl = document.getElementById("loading-msg");
+    errEl.style.display = "none";
+    loadEl.style.display = "block";
+
+    try {
+      const data = await fetchSheet();
+      const participant = data.find(row => row["Code"] && row["Code"].toString().trim().toUpperCase() === code);
+
+      if (!participant) {
+        errEl.style.display = "block";
+        loadEl.style.display = "none";
+        return;
+      }
+
+      donneesParticipant = participant;
+      afficherResultat();
+    } catch (e) {
+      errEl.textContent = "Erreur de chargement. Réessaie dans quelques secondes.";
+      errEl.style.display = "block";
+    }
+    loadEl.style.display = "none";
+  }
+
+  function afficherResultat() {
+    const p = donneesParticipant;
+    const role = p["Role"] ? p["Role"].toString().toLowerCase() : "";
+    const jourActuel = getJourActuel();
+
+    document.getElementById("prenom-display").textContent = `Bonjour ${p["Prénom"]} 👋`;
+
+    const nav = document.getElementById("day-nav");
+    nav.innerHTML = "";
+    for (let j = 1; j <= NB_JOURS; j++) {
+      const btn = document.createElement("button");
+      btn.className = "day-btn" + (j === jourActuel ? " active" : "") + (j > jourActuel ? " locked" : "");
+      btn.textContent = `Jour ${j}`;
+      if (j <= jourActuel) {
+        btn.onclick = () => afficherJour(j);
+      }
+      nav.appendChild(btn);
+    }
+
+    afficherJour(jourActuel);
+
+    document.getElementById("login-card").style.display = "none";
+    document.getElementById("result-card").style.display = "block";
+  }
+
+  function afficherJour(jour) {
+    const p = donneesParticipant;
+    const role = p["Role"] ? p["Role"].toString().toLowerCase() : "";
+    const jourActuel = getJourActuel();
+
+    document.querySelectorAll(".day-btn").forEach((btn, i) => {
+      btn.classList.toggle("active", i + 1 === jour);
+    });
+
+    const container = document.getElementById("indice-container");
+
+    const cle = role === "marraine" ? "Indice_Filleule_J" : "Indice_Marraine_J";
+    const labelRole = role === "marraine" ? "filleule" : "marraine";
+    const labelColor = role === "marraine" ? "filleule" : "marraine";
+    const emoji = role === "marraine" ? "🌷" : "🌸";
+
+    const indice = p[cle + jour] || "";
+    const estVerrouille = jour > jourActuel || !indice;
+
+    container.innerHTML = `
+      <div class="indice-block">
+        <div class="indice-label ${labelColor}">
+          <span class="indice-icon">${emoji}</span>Indice sur ta ${labelRole} — Jour ${jour}
+        </div>
+        <p class="indice-text ${estVerrouille ? 'locked' : ''}">
+          ${estVerrouille ? (jour > jourActuel ? "Cet indice sera débloqué demain… patience ! 🔒" : "Aucun indice pour ce jour.") : indice}
+        </p>
+      </div>
+    `;
+  }
+
+  function retour() {
+    document.getElementById("result-card").style.display = "none";
+    document.getElementById("login-card").style.display = "block";
+    document.getElementById("code-input").value = "";
+    document.getElementById("error-msg").style.display = "none";
+    donneesParticipant = null;
+  }
+
+  document.getElementById("code-input").addEventListener("keydown", e => {
+    if (e.key === "Enter") validerCode();
+  });
+</script>
+</body>
+</html>
