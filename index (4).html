@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Indices Marrainage</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="manifest" href="./manifest.json">
+  <link rel="apple-touch-icon" href="./apple-touch-icon.png">
+  <meta name="theme-color" content="#b85c3a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Marrainage">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --bg:#fdf4ef;--surface:#ffffff;--surface2:#fdf0ea;
+      --terra:#b85c3a;--terra-glow:rgba(184,92,58,0.18);--terra-light:#c9703f;
+      --mauve:#a0607a;--text:#2c1a10;--text-muted:#8a7068;
+      --border:rgba(184,92,58,0.18);--border-soft:rgba(0,0,0,0.06);
+      --locked:#f5ede8;--locked-text:#c4a898;
+    }
+    body{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;
+      padding:1.5rem;font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden}
+    body::before{content:'';position:fixed;inset:0;
+      background-image:
+        radial-gradient(1px 1px at 15% 20%,rgba(184,92,58,.3) 0%,transparent 100%),
+        radial-gradient(1px 1px at 75% 10%,rgba(160,96,122,.25) 0%,transparent 100%),
+        radial-gradient(1.5px 1.5px at 40% 80%,rgba(184,92,58,.2) 0%,transparent 100%),
+        radial-gradient(1px 1px at 85% 60%,rgba(44,26,16,.12) 0%,transparent 100%),
+        radial-gradient(1px 1px at 25% 55%,rgba(160,96,122,.2) 0%,transparent 100%),
+        radial-gradient(1px 1px at 60% 35%,rgba(184,92,58,.15) 0%,transparent 100%);
+      pointer-events:none;z-index:0}
+    .card{position:relative;z-index:1;background:var(--surface);border-radius:24px;
+      border:1px solid var(--border);padding:2.8rem 2.2rem 2.4rem;max-width:440px;width:100%;
+      text-align:center;box-shadow:0 0 60px rgba(184,92,58,.06),0 24px 48px rgba(0,0,0,.08)}
+    .card::before{content:'';position:absolute;top:0;left:10%;right:10%;height:1px;
+      background:linear-gradient(90deg,transparent,var(--terra),transparent)}
+    .eyebrow{font-size:.68rem;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--terra);margin-bottom:.7rem}
+    h1{font-family:'Playfair Display',Georgia,serif;font-size:1.8rem;font-weight:700;color:var(--text);margin-bottom:.3rem;line-height:1.2}
+    .subtitle{font-size:.82rem;color:var(--text-muted);margin-bottom:2.2rem;letter-spacing:.02em}
+    .divider{display:flex;align-items:center;gap:.8rem;margin-bottom:2rem}
+    .divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border-soft)}
+    .divider-diamond{width:5px;height:5px;background:var(--terra);transform:rotate(45deg);flex-shrink:0;opacity:.7}
+    label{display:block;font-size:.72rem;font-weight:600;color:var(--text-muted);text-align:left;
+      margin-bottom:.5rem;letter-spacing:.12em;text-transform:uppercase}
+    input[type="text"]{width:100%;padding:.85rem 1.1rem;border:1px solid var(--border);border-radius:12px;
+      font-size:1rem;letter-spacing:.1em;text-align:center;text-transform:uppercase;
+      font-family:'Inter',monospace;font-weight:600;color:var(--terra-light);
+      background:var(--surface2);transition:border-color .2s,box-shadow .2s;outline:none}
+    input[type="text"]:focus{border-color:var(--terra);box-shadow:0 0 0 3px var(--terra-glow)}
+    input[type="text"]::placeholder{color:var(--locked-text);text-transform:none;letter-spacing:0;font-weight:400;font-size:.9rem}
+    .btn-primary{margin-top:1rem;width:100%;padding:.9rem;
+      background:linear-gradient(135deg,#a04e30,#c9703f,#b85c3a);color:#fff;border:none;
+      border-radius:12px;font-size:.95rem;font-weight:700;cursor:pointer;letter-spacing:.04em;
+      transition:opacity .2s,transform .1s,box-shadow .2s;box-shadow:0 4px 20px rgba(184,92,58,.3)}
+    .btn-primary:hover{opacity:.92;box-shadow:0 6px 28px rgba(184,92,58,.45)}
+    .btn-primary:active{transform:scale(.98)}
+    .error{margin-top:.9rem;padding:.7rem 1rem;background:rgba(180,40,40,.1);
+      border:1px solid rgba(180,40,40,.25);border-radius:10px;font-size:.84rem;color:#a32d2d;display:none}
+    .loading{color:var(--text-muted);font-size:.85rem;margin-top:.9rem;display:none}
+    #result-card{animation:revealCard .5s cubic-bezier(.34,1.56,.64,1) both}
+    @keyframes revealCard{from{opacity:0;transform:scale(.94) translateY(8px);filter:blur(4px)}to{opacity:1;transform:scale(1) translateY(0);filter:blur(0)}}
+    .prenom-name{font-family:'Playfair Display',Georgia,serif;font-size:1.25rem;font-weight:700;color:var(--text);margin-bottom:.3rem}
+    .role-badge{display:inline-block;font-size:.68rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;
+      color:var(--terra);background:rgba(184,92,58,.1);border:1px solid rgba(184,92,58,.2);
+      padding:.2rem .8rem;border-radius:20px;margin-bottom:1.8rem}
+    .day-nav{display:flex;gap:.35rem;flex-wrap:wrap;margin-bottom:1.4rem;justify-content:center}
+    .day-btn{width:auto;margin:0;padding:.38rem .85rem;font-size:.75rem;font-weight:600;border-radius:20px;
+      border:1px solid var(--border);background:var(--surface2);color:var(--text-muted);
+      cursor:pointer;transition:all .2s;letter-spacing:.03em;flex:none}
+    .day-btn:not(.locked):hover{background:rgba(184,92,58,.12);border-color:var(--terra);color:var(--terra-light)}
+    .day-btn.active{background:linear-gradient(135deg,rgba(184,92,58,.2),rgba(184,92,58,.1));
+      border-color:var(--terra);color:var(--terra-light);box-shadow:0 0 12px var(--terra-glow)}
+    .day-btn.locked{background:var(--locked);border-color:transparent;color:var(--locked-text);cursor:default;font-size:.72rem}
+    .day-btn.locked:hover{background:var(--locked)}
+    .indice-block{background:var(--surface2);border:1px solid var(--border);border-radius:16px;
+      padding:1.4rem 1.3rem;margin-bottom:1.2rem;text-align:left;position:relative;overflow:hidden}
+    .indice-block::before{content:'';position:absolute;inset:0;
+      background:linear-gradient(135deg,rgba(184,92,58,.04),transparent 60%);pointer-events:none}
+    .indice-block.revealed{border-color:rgba(184,92,58,.35);animation:shimmer .6s ease-out both}
+    @keyframes shimmer{from{box-shadow:0 0 0 0 var(--terra-glow)}50%{box-shadow:0 0 32px 4px var(--terra-glow)}to{box-shadow:0 0 12px 0 var(--terra-glow)}}
+    .indice-day-label{font-size:.68rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;
+      color:var(--terra);margin-bottom:.6rem;display:flex;align-items:center;gap:.4rem}
+    .indice-day-label .dot{width:5px;height:5px;border-radius:50%;background:var(--terra);flex-shrink:0}
+    .indice-role-label{font-size:.72rem;font-weight:500;color:var(--text-muted);margin-bottom:.7rem}
+    .indice-text{font-size:.98rem;color:var(--text);line-height:1.6;font-weight:400}
+    .indice-text.locked-msg{color:var(--locked-text);font-style:italic;font-size:.88rem}
+    .btn-back{background:transparent;color:var(--text-muted);border:1px solid var(--border-soft);
+      font-size:.8rem;font-weight:500;margin-top:.4rem;width:auto;padding:.5rem 1.2rem;
+      border-radius:10px;cursor:pointer;letter-spacing:.02em;transition:all .2s}
+    .btn-back:hover{background:var(--surface2);color:var(--text);border-color:var(--border)}
+    footer{position:relative;z-index:1;margin-top:1.8rem;font-size:.7rem;color:var(--locked-text);letter-spacing:.05em}
+  </style>
+</head>
+<body>
+<div class="card" id="login-card">
+  <p class="eyebrow">✦ Marrainage CFUO Poitiers</p>
+  <h1>Indices marrainage</h1>
+  <p class="subtitle">2026 — 2027</p>
+  <div class="divider"><div class="divider-diamond"></div></div>
+  <label for="code-input">Ton code secret</label>
+  <input type="text" id="code-input" maxlength="16" placeholder="ex : MARRAINE-1234" autocomplete="off" />
+  <button class="btn-primary" onclick="validerCode()">Révéler mon indice ✦</button>
+  <p class="error" id="error-msg">Code introuvable. Vérifie ton message de départ ✉️</p>
+  <p class="loading" id="loading-msg">Chargement…</p>
+</div>
+
+<div class="card" id="result-card" style="display:none;">
+  <p class="eyebrow">✦ Marrainage CFUO Poitiers</p>
+  <p class="prenom-name" id="prenom-display"></p>
+  <span class="role-badge" id="role-badge"></span>
+  <div class="day-nav" id="day-nav"></div>
+  <div id="indice-container"></div>
+  <button class="btn-back" onclick="retour()">← Changer de code</button>
+</div>
+
+<footer>Marrainage orthophonie · 2026/2027</footer>
+
+<script>
+  const SHEET_ID   = "1AOwJPqvp2svXow5W17gJAVoko47v-ogxM1ibS4Rvt88";
+  const SHEET_NAME = "Participants";
+  const NB_JOURS   = 5;
+  const HEURE_DEBLOCAGE = 10; // 10h heure locale
+  const DATE_DEBUT = new Date(2026, 8, 25); // 25 septembre 2026
+
+  let donneesParticipant = null;
+
+  function getJourActuel() {
+    const maintenant = new Date();
+    const decale = new Date(maintenant.getTime() - HEURE_DEBLOCAGE * 60 * 60 * 1000);
+    const decaleJour = new Date(decale.getFullYear(), decale.getMonth(), decale.getDate());
+    const debutJour  = new Date(DATE_DEBUT.getFullYear(), DATE_DEBUT.getMonth(), DATE_DEBUT.getDate());
+    const diff = Math.round((decaleJour - debutJour) / (1000 * 60 * 60 * 24));
+    return Math.min(diff + 1, NB_JOURS);
+  }
+
+  async function fetchSheet() {
+    const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SHEET_NAME)}`;
+    const resp = await fetch(url);
+    const text = await resp.text();
+    const json = JSON.parse(text.substring(47, text.length - 2));
+    const rows = json.table.rows;
+    const headers = rows[0].c.map(cell => cell ? cell.v : "");
+    return rows.slice(1).map(row => {
+      const obj = {};
+      row.c.forEach((cell, i) => { obj[headers[i]] = cell ? cell.v : ""; });
+      return obj;
+    });
+  }
+
+  async function validerCode() {
+    const code = document.getElementById("code-input").value.trim().toUpperCase();
+    const errEl  = document.getElementById("error-msg");
+    const loadEl = document.getElementById("loading-msg");
+    errEl.style.display = "none";
+    loadEl.style.display = "block";
+    try {
+      const data = await fetchSheet();
+      const participant = data.find(row => row["Code"] && row["Code"].toString().trim().toUpperCase() === code);
+      if (!participant) { errEl.style.display = "block"; loadEl.style.display = "none"; return; }
+      donneesParticipant = participant;
+      afficherResultat();
+    } catch(e) {
+      errEl.textContent = "Erreur de chargement. Réessaie dans quelques secondes.";
+      errEl.style.display = "block";
+    }
+    loadEl.style.display = "none";
+  }
+
+  function afficherResultat() {
+    const p = donneesParticipant;
+    const role = (p["Role"] || "").toString().toLowerCase();
+    const jourActuel = getJourActuel();
+
+    document.getElementById("prenom-display").textContent = `Bonjour, ${p["Prénom"]} 👋`;
+    document.getElementById("role-badge").textContent = role === "marraine" ? "✦ Marraine" : "✦ Filleule";
+
+    const nav = document.getElementById("day-nav");
+    const container = document.getElementById("indice-container");
+    nav.innerHTML = "";
+
+    if (jourActuel < 1) {
+      container.innerHTML = `<div class="indice-block"><p class="indice-text locked-msg">🔒 Le marrainage commence le 25 septembre à 10h… patience !</p></div>`;
+      document.getElementById("login-card").style.display = "none";
+      document.getElementById("result-card").style.display = "block";
+      return;
+    }
+
+    for (let j = 1; j <= NB_JOURS; j++) {
+      const btn = document.createElement("button");
+      const debloque = j <= jourActuel;
+      btn.className = "day-btn" + (j === jourActuel ? " active" : "") + (!debloque ? " locked" : "");
+      btn.textContent = debloque ? `Jour ${j}` : `🔒 J${j}`;
+      if (debloque) btn.onclick = () => afficherJour(j);
+      nav.appendChild(btn);
+    }
+    afficherJour(jourActuel);
+    document.getElementById("login-card").style.display = "none";
+    document.getElementById("result-card").style.display = "block";
+  }
+
+  function afficherJour(jour) {
+    const p = donneesParticipant;
+    const role = (p["Role"] || "").toString().toLowerCase();
+    document.querySelectorAll(".day-btn").forEach((btn, i) => { btn.classList.toggle("active", i + 1 === jour); });
+    const container = document.getElementById("indice-container");
+    const cle    = role === "marraine" ? "Indice_Filleule_J" : "Indice_Marraine_J";
+    const cible  = role === "marraine" ? "ta filleule" : "ta marraine";
+    const emoji  = role === "marraine" ? "🌷" : "🌸";
+    const indice = p[cle + jour] || "";
+    container.innerHTML = `
+      <div class="indice-block ${indice ? 'revealed' : ''}">
+        <div class="indice-day-label"><div class="dot"></div>Jour ${jour}</div>
+        <div class="indice-role-label">${emoji} Indice sur ${cible}</div>
+        ${indice
+          ? `<p class="indice-text">${indice}</p>`
+          : `<p class="indice-text locked-msg">🔒 Aucun indice disponible pour ce jour.</p>`}
+      </div>`;
+  }
+
+  function retour() {
+    document.getElementById("result-card").style.display = "none";
+    document.getElementById("login-card").style.display = "block";
+    document.getElementById("code-input").value = "";
+    document.getElementById("error-msg").style.display = "none";
+    donneesParticipant = null;
+  }
+
+  document.getElementById("code-input").addEventListener("keydown", e => { if (e.key === "Enter") validerCode(); });
+</script>
+</body>
+</html>
